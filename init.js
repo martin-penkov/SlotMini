@@ -5,8 +5,8 @@ let fullFieldHeight = window.innerHeight / 1.5;
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
 
-let verticalOffset = fullFieldHeight / 3;
-let horizontalOffset = fullFieldWidth / 5 - 50;
+let verticalOffset = fullFieldHeight / 3 + 50;
+let horizontalOffset = fullFieldWidth / 5;
 let field = [
     [{x: 0, y: 0}, {x: 0, y: verticalOffset}, {x: 0, y: verticalOffset * 2}],
     [{x: horizontalOffset, y: 0}, {x: horizontalOffset, y: verticalOffset}, {x: horizontalOffset, y: verticalOffset * 2}],
@@ -50,6 +50,12 @@ function setup(loader) {
     let slotFrameTexture = sceneService.getSlotFrame();
     let slotFrameSprite = SceneService.createSprite(slotFrameTexture, window.innerWidth / 2, window.innerHeight / 2, fullFieldWidth, fullFieldHeight)
     app.stage.addChild(slotFrameSprite);
+    //mask the surrounding area
+    const graphics = new PIXI.Graphics();
+    graphics.beginFill(0xFF3300);
+    graphics.drawRect(slotFrameSprite.x, slotFrameSprite.y, fullFieldWidth, fullFieldHeight);
+    graphics.endFill();
+    slotFrameSprite.mask = graphics
 
     //add button
     let buttonTexture = sceneService.getButtons().buttonNormal;
@@ -61,6 +67,18 @@ function setup(loader) {
     //generate random symbols on the field
     addRandomFieldSymbols(slotFrameSprite)
     console.log(field)
+
+
+    var testRectangle = new PIXI.Graphics();
+    testRectangle.beginFill(0xFFFF00);
+    testRectangle.lineStyle(5, 0xFF0000);
+    testRectangle.drawRect(0, 0, 300, 200);
+    slotFrameSprite.addChild(testRectangle);
+    
+
+    app.ticker.add(function () {
+        testRectangle.y += 1
+    })
 }
 
 
