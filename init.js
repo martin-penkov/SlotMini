@@ -70,7 +70,7 @@ function setup(loader) {
 function Roll(){
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
-
+    location.reload()
 }
 
 function addRandomFieldSymbols(slotFrame) {
