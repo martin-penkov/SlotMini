@@ -5,7 +5,7 @@ let fullFieldHeight = window.innerHeight / 1.5;
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
 
-let verticalOffset = fullFieldHeight / 3 - 30;
+let verticalOffset = fullFieldHeight / 3;
 let horizontalOffset = fullFieldWidth / 5 - 50;
 let field = [
     [{x: 0, y: 0}, {x: 0, y: verticalOffset}, {x: 0, y: verticalOffset * 2}],
