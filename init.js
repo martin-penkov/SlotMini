@@ -1,6 +1,12 @@
 let isRolling = false;
 let fullFieldWidth = window.innerWidth / 1.5;
 let fullFieldHeight = window.innerHeight / 1.5;
+let areNewSymbolsSpawned = false;
+let newSymbolsSpawnedCount = 0;
+let isNewFieldGenerated = false;
+let rollSpeed = 15;  //speed in ms
+
+
 
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
@@ -15,7 +21,13 @@ let field = [
     [{x: horizontalOffset * 4, y: 0}, {x: horizontalOffset * 4, y: verticalOffset}, {x: horizontalOffset * 4, y: verticalOffset * 2}]
 ]
 
-
+let rollField = [
+    [],
+    [],
+    [],
+    [],
+    []
+]
 
 
 // The application will create a renderer using WebGL, if possible,
@@ -43,12 +55,14 @@ loader.onComplete.add(function () {
 
 //setup scene loader
 let sceneService = new SceneService(loader)
+let slotFrame;
 
 loader.load(setup);
 function setup(loader) {
     //init background frame
     let slotFrameTexture = sceneService.getSlotFrame();
     let slotFrameSprite = SceneService.createSprite(slotFrameTexture, window.innerWidth / 2, window.innerHeight / 2, fullFieldWidth, fullFieldHeight)
+    slotFrame = slotFrameSprite;
     app.stage.addChild(slotFrameSprite);
     //mask the surrounding area
     const graphics = new PIXI.Graphics();
@@ -81,20 +95,39 @@ function setup(loader) {
 
 
 rollReels = function(delta) {
+    //roll old field
+
+
+    //generater new random field sprites
+    initialAddRandomFieldSymbolsDuringRoll()
+
     //roll reach column by speed
     rollSingleReel(0, 0)
-    rollSingleReel(1, 1000)
-    rollSingleReel(2, 2000)
-    rollSingleReel(3, 3000)
-    rollSingleReel(4, 4000)
+    rollSingleReel(1, 200)
+    rollSingleReel(2, 400)
+    rollSingleReel(3, 600)
+    rollSingleReel(4, 800)
 }
 
 rollSingleReel = function(columnId, timeout){
     setTimeout(() => {
         app.ticker.add(function(delta) {
-            field[columnId][0].sprite.y += 1 * delta
-            field[columnId][1].sprite.y += 1 * delta
-            field[columnId][2].sprite.y += 1 * delta
+            rollField[columnId].forEach(spriteReference => {
+                spriteReference.y += rollSpeed * delta;
+            });
+            // rollfield[columnId][0].y += rollSpeed * delta;
+            // rollField[columnId][1].y += rollSpeed * delta;
+            // rollField[columnId][2].y += rollSpeed * delta;
+
+            if(rollField[columnId].length === 6){
+                if(rollField[columnId][0].y >= fullFieldHeight){
+                    removeOldSpritesFromStage(columnId)
+                }
+            }
+
+            // if(newSymbolsSpawnedCount === 3){
+            //     areNewSymbolsSpawned = true;
+            // }
         })
     }, timeout);
 }
@@ -103,7 +136,6 @@ rollSingleReel = function(columnId, timeout){
 function Roll(){
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
-
     app.ticker.addOnce(rollReels)
 }
 
@@ -114,9 +146,35 @@ function addRandomFieldSymbols(slotFrame) {
             let posValues = field[col][slotIndex]
             let symbolSprite = SceneService.createSprite(sceneService.getRandomSymbolTexture(), posValues.x + 150, posValues.y + 170, 300, 300)
             field[col][slotIndex].sprite = symbolSprite;
+            rollField[col].push(symbolSprite)
             //add random symbol to the field with these coordinates
             slotFrame.addChild(symbolSprite);
-
         }
     }
+}
+
+
+function initialAddRandomFieldSymbolsDuringRoll(){
+    for(var col = 0; col < field.length; col++) {
+        var wholeColumn = field[col];
+        for(var slotIndex = 0; slotIndex < wholeColumn.length; slotIndex++) {
+            // let spawnYOffset = 300
+            let posValues = field[col][slotIndex]
+            let symbolSprite = SceneService.createSprite(sceneService.getRandomSymbolTexture(), posValues.x + 150, posValues.y + 170 - verticalOffset * 3, 300, 300)
+            field[col][slotIndex].sprite = symbolSprite;
+            rollField[col].push(symbolSprite)
+            //add random symbol to the field with these coordinates
+            slotFrame.addChild(symbolSprite);
+        }
+    }
+}
+
+function removeOldSpritesFromStage(columnId){
+    //remove the three sprites which have left the field respectively
+    slotFrame.removeChild(rollField[columnId][0]);
+    slotFrame.removeChild(rollField[columnId][1]);
+    slotFrame.removeChild(rollField[columnId][2]);
+    rollField[columnId].shift()
+    rollField[columnId].shift()
+    rollField[columnId].shift()
 }
