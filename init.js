@@ -41,8 +41,8 @@ loader.onComplete.add(function () {
     console.log("Assets successfully loaded!")
 })
 
+//setup scene loader
 let sceneService = new SceneService(loader)
-
 
 loader.load(setup);
 function setup(loader) {
@@ -69,26 +69,42 @@ function setup(loader) {
     console.log(field)
 
 
-    var testRectangle = new PIXI.Graphics();
-    testRectangle.beginFill(0xFFFF00);
-    testRectangle.lineStyle(5, 0xFF0000);
-    testRectangle.drawRect(0, 0, 300, 200);
-    slotFrameSprite.addChild(testRectangle);
+    // var testRectangle = new PIXI.Graphics();
+    // testRectangle.beginFill(0xFFFF00);
+    // testRectangle.lineStyle(5, 0xFF0000);
+    // testRectangle.drawRect(0, 0, 300, 200);
+    // slotFrameSprite.addChild(testRectangle);
     
-
-    app.ticker.add(function () {
-        testRectangle.y += 1
-    })
+    
+    
 }
 
 
+rollReels = function(delta) {
+    //roll reach column by speed
+    rollSingleReel(0, 0)
+    rollSingleReel(1, 1000)
+    rollSingleReel(2, 2000)
+    rollSingleReel(3, 3000)
+    rollSingleReel(4, 4000)
+}
 
+rollSingleReel = function(columnId, timeout){
+    setTimeout(() => {
+        app.ticker.add(function(delta) {
+            field[columnId][0].sprite.y += 1 * delta
+            field[columnId][1].sprite.y += 1 * delta
+            field[columnId][2].sprite.y += 1 * delta
+        })
+    }, timeout);
+}
 
 
 function Roll(){
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
-    location.reload()
+
+    app.ticker.addOnce(rollReels)
 }
 
 function addRandomFieldSymbols(slotFrame) {
