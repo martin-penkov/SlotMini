@@ -4,7 +4,7 @@ let fullFieldHeight = window.innerHeight / 1.5;
 let areNewSymbolsSpawned = false;
 let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
-let rollSpeed = 15;  //speed in ms
+let rollSpeed = 65;  //speed in ms
 
 
 //field data x- y-axis
@@ -66,7 +66,7 @@ function setup(loader) {
     //mask the surrounding area
     const graphics = new PIXI.Graphics();
     graphics.beginFill(0xFF3300);
-    graphics.drawRect(slotFrameSprite.x, slotFrameSprite.y, fullFieldWidth, fullFieldHeight);
+    graphics.drawRect(slotFrameSprite.x, slotFrameSprite.y + 12, fullFieldWidth, fullFieldHeight - 24);
     graphics.endFill();
     slotFrameSprite.mask = graphics
 
@@ -114,7 +114,7 @@ rollSingleReel = function(columnId, timeout){
             });
 
             if(rollField[columnId].length === 6){
-                if(rollField[columnId][0].y >= fullFieldHeight + 300){
+                if(rollField[columnId][0].y >= fullFieldHeight + 170){
                     removeOldSpritesFromStage(columnId)
                 }
             }
