@@ -6,6 +6,13 @@ let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
 let rollSpeed = 65;  //speed in ms
 
+//ticker named functions
+let ticker1 = function(delta) {tickerGeneralFunc(delta, 0)}
+let ticker2 = function(delta) {tickerGeneralFunc(delta, 1)}
+let ticker3 = function(delta) {tickerGeneralFunc(delta, 2)}
+let ticker4 = function(delta) {tickerGeneralFunc(delta, 3)}
+let ticker5 = function(delta) {tickerGeneralFunc(delta, 4)}
+
 
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
@@ -98,36 +105,55 @@ rollReels = function(delta) {
     initialAddRandomFieldSymbolsDuringRoll()
 
     //roll reach column by speed
-    rollSingleReel(0, 0)
-    rollSingleReel(1, 200)
-    rollSingleReel(2, 400)
-    rollSingleReel(3, 600)
-    rollSingleReel(4, 800)
+    rollSingleReel(0, 0, ticker1)
+    rollSingleReel(1, 200, ticker2)
+    rollSingleReel(2, 400, ticker3)
+    rollSingleReel(3, 600, ticker4)
+    rollSingleReel(4, 800, ticker5)
 }
 
-rollSingleReel = function(columnId, timeout){
+rollSingleReel = function(columnId, timeout, namedFunction){
     setTimeout(() => {
-        app.ticker.add(function(delta) {
-
-            rollField[columnId].forEach(spriteReference => {
-                spriteReference.y += rollSpeed * delta;
-            });
-
-            if(rollField[columnId].length === 6){
-                if(rollField[columnId][0].y >= fullFieldHeight + 170){
-                    removeOldSpritesFromStage(columnId)
-                }
-            }
-
-        })
+        app.ticker.add(namedFunction)
     }, timeout);
+}
+
+function tickerGeneralFunc(delta, columnId) {
+    rollField[columnId].forEach(spriteReference => {
+        spriteReference.y += rollSpeed * delta;
+    });
+
+    if(rollField[columnId].length === 6){
+        if(rollField[columnId][0].y >= fullFieldHeight + 170){
+            removeOldSpritesFromStage(columnId)
+        }
+    }
 }
 
 
 function Roll(){
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
+    setTimeout(() => {
+        stopReels()
+    }, 2000);
     app.ticker.addOnce(rollReels)
+}
+
+function stopReels(){
+    console.log(app.ticker)
+    rollSpeed  = rollSpeed / 2
+    stopReel(ticker1, 50)
+    stopReel(ticker2, 250)
+    stopReel(ticker3, 450)
+    stopReel(ticker4, 650)
+    stopReel(ticker5, 850)
+}
+
+function stopReel(reelNamedTicker, timeout){
+    setTimeout(() => {
+        app.ticker.remove(reelNamedTicker)
+    }, timeout);
 }
 
 function addRandomFieldSymbols(slotFrame) {
@@ -198,3 +224,4 @@ function renderSpritesForColumn(column){
     slotFrame.addChild(lowerRowSprite);
 
 }
+
