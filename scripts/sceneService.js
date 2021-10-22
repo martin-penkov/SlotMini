@@ -39,4 +39,13 @@ class SceneService {
         sprite.y = y - (height / 2);
         return sprite
     }
+
+    static createSymbolSprite(texture, x, y){
+        let sprite = new PIXI.Sprite(texture)
+        sprite.width = 300;
+        sprite.height = 300;
+        sprite.x = x
+        sprite.y = y
+        return sprite
+    }
 }

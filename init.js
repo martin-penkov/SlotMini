@@ -7,7 +7,6 @@ let isNewFieldGenerated = false;
 let rollSpeed = 15;  //speed in ms
 
 
-
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
 
@@ -88,9 +87,6 @@ function setup(loader) {
     // testRectangle.lineStyle(5, 0xFF0000);
     // testRectangle.drawRect(0, 0, 300, 200);
     // slotFrameSprite.addChild(testRectangle);
-    
-    
-    
 }
 
 
@@ -112,22 +108,17 @@ rollReels = function(delta) {
 rollSingleReel = function(columnId, timeout){
     setTimeout(() => {
         app.ticker.add(function(delta) {
+
             rollField[columnId].forEach(spriteReference => {
                 spriteReference.y += rollSpeed * delta;
             });
-            // rollfield[columnId][0].y += rollSpeed * delta;
-            // rollField[columnId][1].y += rollSpeed * delta;
-            // rollField[columnId][2].y += rollSpeed * delta;
 
             if(rollField[columnId].length === 6){
-                if(rollField[columnId][0].y >= fullFieldHeight){
+                if(rollField[columnId][0].y >= fullFieldHeight + 300){
                     removeOldSpritesFromStage(columnId)
                 }
             }
 
-            // if(newSymbolsSpawnedCount === 3){
-            //     areNewSymbolsSpawned = true;
-            // }
         })
     }, timeout);
 }
@@ -177,4 +168,33 @@ function removeOldSpritesFromStage(columnId){
     rollField[columnId].shift()
     rollField[columnId].shift()
     rollField[columnId].shift()
+
+    //add randomly generated symbols on top of the left ones
+    renderSpritesForColumn(columnId)
+}
+
+
+//render symbols which are going to create the rolling animation out of the newly generated random symbols
+function renderSpritesForColumn(column){
+    //get sprites for the three rows 
+    let upperRow = rollField[column][0].texture
+    let centerRow = rollField[column][1].texture
+    let lowerRow = rollField[column][2].texture
+    //create sprites and change y coordinates
+
+
+    let upperRowSprite = SceneService.createSymbolSprite(upperRow, rollField[column][0].x, rollField[column][0].y - fullFieldHeight - 300 / 2);
+    let centerRowSprite = SceneService.createSymbolSprite(centerRow, rollField[column][1].x, rollField[column][1].y - fullFieldHeight - 300 / 2);
+    let lowerRowSprite = SceneService.createSymbolSprite(lowerRow, rollField[column][2].x, rollField[column][2].y - fullFieldHeight - 300 / 2);
+    
+    //add elements to rollField array 
+    rollField[column].push(upperRowSprite)
+    rollField[column].push(centerRowSprite)
+    rollField[column].push(lowerRowSprite)
+
+    //attach to the scene
+    slotFrame.addChild(upperRowSprite);
+    slotFrame.addChild(centerRowSprite);
+    slotFrame.addChild(lowerRowSprite);
+
 }
