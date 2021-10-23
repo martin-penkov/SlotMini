@@ -4,7 +4,7 @@ let fullFieldHeight = window.innerHeight / 1.5;
 let areNewSymbolsSpawned = false;
 let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
-let rollSpeed = 65;  //speed in ms
+let rollSpeed = 55;  //speed in ms
 
 //ticker named functions
 let ticker1 = function(delta) {tickerGeneralFunc(delta, 0)}
@@ -143,17 +143,44 @@ function Roll(){
 function stopReels(){
     console.log(app.ticker)
     rollSpeed  = rollSpeed / 2
-    stopReel(ticker1, 50)
-    stopReel(ticker2, 250)
-    stopReel(ticker3, 450)
-    stopReel(ticker4, 650)
-    stopReel(ticker5, 850)
+    stopReel(ticker1, 50, stopTicker1)
+    stopReel(ticker2, 250, stopTicker2)
+    stopReel(ticker3, 450, stopTicker3)
+    stopReel(ticker4, 650, stopTicker4)
+    stopReel(ticker5, 850, stopTicker5)
 }
 
-function stopReel(reelNamedTicker, timeout){
+function stopReel(reelNamedTicker, timeout, namedStopTicker){
     setTimeout(() => {
         app.ticker.remove(reelNamedTicker)
+        //call function that will correct the positions
+        app.ticker.add(namedStopTicker);
     }, timeout);
+}
+
+//stop ticker named functions
+let stopTicker1 = function(delta) {correctPositionsTicker(delta, 0)}
+let stopTicker2 = function(delta) {correctPositionsTicker(delta, 1)}
+let stopTicker3 = function(delta) {correctPositionsTicker(delta, 2)}
+let stopTicker4 = function(delta) {correctPositionsTicker(delta, 3)}
+let stopTicker5 = function(delta) {correctPositionsTicker(delta, 4)}
+let correctedPositions = [false, false, false, false, false]
+function correctPositionsTicker(delta, columnId){
+    //move upper symbols to the correct positions on x and y axis
+    //then remove from the stage the lower ones which are going to be out of bounds
+    
+    if(!correctedPositions[columnId]){
+        //move elements
+        rollField[columnId].forEach(spriteReference => {
+            spriteReference.y += rollSpeed / 2 * delta
+        });
+        //check if elements are in the correct positions already
+        if(rollField[columnId][5].y >= field[columnId][2].y){
+            correctedPositions[columnId] = true;
+            //make sure sprite is in absolutely correct position by rewriting it to be the same as the initial one
+            rollField[columnId][5].y = field[columnId][2].y
+        }
+    }
 }
 
 function addRandomFieldSymbols(slotFrame) {
