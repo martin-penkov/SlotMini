@@ -14,7 +14,7 @@ class SceneService {
     }
 
     getSymbols(){
-        let symbols = this.sheet.textures
+        let symbols = {...(this.sheet.textures)}
         delete symbols["SlotFrame.png"]
         delete symbols["SpinButton_Normal.png"]
         delete symbols["SpinButton_Active.png"]

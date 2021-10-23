@@ -4,7 +4,9 @@ let fullFieldHeight = window.innerHeight / 1.5;
 let areNewSymbolsSpawned = false;
 let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
-let rollSpeed = 55;  //speed in ms
+let rollSpeed = 100;  //speed in ms
+let spinTime = 2000; // time is in ms
+let correctedPositions = [false, false, false, false, false]
 
 //ticker named functions
 let ticker1 = function(delta) {tickerGeneralFunc(delta, 0)}
@@ -80,7 +82,7 @@ function setup(loader) {
     //add button
     let buttonTexture = sceneService.getButtons().buttonNormal;
     let buttonSprite = SceneService.createSprite(buttonTexture, window.innerWidth - 150, window.innerHeight - 150, 150, 150)
-    buttonSprite.on('mousedown', function () {Roll()});
+    buttonSprite.on('mousedown', function (event) {Roll(event)});
     buttonSprite.interactive = true;
     app.stage.addChild(buttonSprite)
 
@@ -98,9 +100,6 @@ function setup(loader) {
 
 
 rollReels = function(delta) {
-    //roll old field
-
-
     //generater new random field sprites
     initialAddRandomFieldSymbolsDuringRoll()
 
@@ -125,24 +124,42 @@ function tickerGeneralFunc(delta, columnId) {
 
     if(rollField[columnId].length === 6){
         if(rollField[columnId][0].y >= fullFieldHeight + 170){
-            removeOldSpritesFromStage(columnId)
+            removeOldSpritesFromStage(columnId, true)
         }
     }
 }
 
 
-function Roll(){
+function Roll(event){
+    correctedPositions = [false, false, false, false, false]
+    //change button to unavailable texture and remove temporarily the onclick event
+    let buttonSprite = event.currentTarget
+    buttonSprite.texture = sceneService.getButtons().buttonActive;
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
     setTimeout(() => {
         stopReels()
-    }, 2000);
+    }, spinTime);
+
+    //set timeout also for when the spin is going to be done and you can spin again
+    //then remove the removeTickers from the stage
+    //add 1650 to the because that is the sum of the delays between first and last reel when they start and when they finish
+    setTimeout(() => {
+        buttonSprite.texture = sceneService.getButtons().buttonNormal;
+        app.ticker.remove(stopTicker1);
+        app.ticker.remove(stopTicker2);
+        app.ticker.remove(stopTicker3);
+        app.ticker.remove(stopTicker4);
+        app.ticker.remove(stopTicker5);
+        console.log(`final ticker:`)
+        console.log(app.ticker)
+    }, spinTime + 1650);
     app.ticker.addOnce(rollReels)
 }
 
 function stopReels(){
     console.log(app.ticker)
-    rollSpeed  = rollSpeed / 2
+    slowedRollSpeed  = rollSpeed / 5
     stopReel(ticker1, 50, stopTicker1)
     stopReel(ticker2, 250, stopTicker2)
     stopReel(ticker3, 450, stopTicker3)
@@ -164,7 +181,7 @@ let stopTicker2 = function(delta) {correctPositionsTicker(delta, 1)}
 let stopTicker3 = function(delta) {correctPositionsTicker(delta, 2)}
 let stopTicker4 = function(delta) {correctPositionsTicker(delta, 3)}
 let stopTicker5 = function(delta) {correctPositionsTicker(delta, 4)}
-let correctedPositions = [false, false, false, false, false]
+
 function correctPositionsTicker(delta, columnId){
     //move upper symbols to the correct positions on x and y axis
     //then remove from the stage the lower ones which are going to be out of bounds
@@ -172,13 +189,18 @@ function correctPositionsTicker(delta, columnId){
     if(!correctedPositions[columnId]){
         //move elements
         rollField[columnId].forEach(spriteReference => {
-            spriteReference.y += rollSpeed / 2 * delta
+            spriteReference.y += slowedRollSpeed * delta
         });
         //check if elements are in the correct positions already
         if(rollField[columnId][5].y >= field[columnId][2].y){
             correctedPositions[columnId] = true;
             //make sure sprite is in absolutely correct position by rewriting it to be the same as the initial one
             rollField[columnId][5].y = field[columnId][2].y
+            //remove symbols beneath (which are out of bounds of the fieldBoxSprite)
+            removeOldSpritesFromStage(columnId, false)
+            //change variables
+            isRolling = false;
+            console.log(`is Rolling: ${isRolling}`)
         }
     }
 }
@@ -213,7 +235,7 @@ function initialAddRandomFieldSymbolsDuringRoll(){
     }
 }
 
-function removeOldSpritesFromStage(columnId){
+function removeOldSpritesFromStage(columnId, generateNewOnes){
     //remove the three sprites which have left the field respectively
     slotFrame.removeChild(rollField[columnId][0]);
     slotFrame.removeChild(rollField[columnId][1]);
@@ -223,7 +245,7 @@ function removeOldSpritesFromStage(columnId){
     rollField[columnId].shift()
 
     //add randomly generated symbols on top of the left ones
-    renderSpritesForColumn(columnId)
+    if(generateNewOnes){renderSpritesForColumn(columnId)}
 }
 
 
