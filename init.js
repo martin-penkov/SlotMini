@@ -8,6 +8,16 @@ let rollSpeed = 100;  //speed in ms
 let spinTime = 2000; // time is in ms
 let correctedPositions = [false, false, false, false, false]
 
+//wallet
+let rewardService = new RewardService()
+
+
+
+let walletObject = new PIXI.Text(`Balance: ${rewardService.returnWalletAmount()} Leva`, defaultStyling());
+let betObject = new PIXI.Text(`Bet: ${rewardService.returnBetAmount()} Leva`, defaultStyling())
+let helpText1 = new PIXI.Text("Green Circle = increase bet", helpTextStyling())
+let helpText2 = new PIXI.Text("Red Circle = lower bet", helpTextStyling())
+
 //ticker named functions
 let ticker1 = function(delta) {tickerGeneralFunc(delta, 0)}
 let ticker2 = function(delta) {tickerGeneralFunc(delta, 1)}
@@ -79,6 +89,45 @@ function setup(loader) {
     graphics.endFill();
     slotFrameSprite.mask = graphics
 
+    //render wallet balance text
+    app.stage.addChild(walletObject);
+    //bet change menu
+    helpText1.y = 200
+    helpText2.y = 250
+    app.stage.addChild(helpText1)
+    app.stage.addChild(helpText2)
+
+    const upBetSprite = new PIXI.Graphics();
+    upBetSprite.beginFill(0x78AB46);
+    upBetSprite.drawCircle(30, 30, 30);
+    upBetSprite.y = 100
+    upBetSprite.endFill();
+    upBetSprite.interactive = true;
+    upBetSprite.on('mousedown', function() {
+        rewardService.increaseBet()
+        betObject.text = `Bet: ${rewardService.returnBetAmount()} Leva`
+    })
+    app.stage.addChild(upBetSprite)
+    //bet amount object
+    betObject.y = 60
+    app.stage.addChild(betObject)
+
+    const lowerBetSprite = new PIXI.Graphics();
+    lowerBetSprite.beginFill(0xC41E3A);
+    lowerBetSprite.drawCircle(30, 30, 30);
+    lowerBetSprite.x = 100
+    lowerBetSprite.y = 100
+    lowerBetSprite.endFill();
+    lowerBetSprite.interactive = true;
+    lowerBetSprite.on('mousedown', function() {
+        rewardService.lowerBet()
+        betObject.text = `Bet: ${rewardService.returnBetAmount()} Leva`
+    })
+    app.stage.addChild(lowerBetSprite)
+    
+
+
+
     //add button
     let buttonTexture = sceneService.getButtons().buttonNormal;
     let buttonSprite = SceneService.createSprite(buttonTexture, window.innerWidth - 150, window.innerHeight - 150, 150, 150)
@@ -89,13 +138,6 @@ function setup(loader) {
     //generate random symbols on the field
     addRandomFieldSymbols(slotFrameSprite)
     console.log(field)
-
-
-    // var testRectangle = new PIXI.Graphics();
-    // testRectangle.beginFill(0xFFFF00);
-    // testRectangle.lineStyle(5, 0xFF0000);
-    // testRectangle.drawRect(0, 0, 300, 200);
-    // slotFrameSprite.addChild(testRectangle);
 }
 
 
@@ -132,8 +174,11 @@ function tickerGeneralFunc(delta, columnId) {
 
 function Roll(event){
     correctedPositions = [false, false, false, false, false]
+    rewardService.removeBetAmountAfterSpin();
+    walletObject.text = `Balance: ${rewardService.returnWalletAmount()} Leva`
     //change button to unavailable texture and remove temporarily the onclick event
     let buttonSprite = event.currentTarget
+    buttonSprite.off('mousedown')
     buttonSprite.texture = sceneService.getButtons().buttonActive;
     isRolling = true;
     console.log(`is Rolling: ${isRolling}`)
@@ -146,19 +191,23 @@ function Roll(event){
     //add 1650 to the because that is the sum of the delays between first and last reel when they start and when they finish
     setTimeout(() => {
         buttonSprite.texture = sceneService.getButtons().buttonNormal;
+        buttonSprite.on('mousedown', function (event) { Roll(event) })
         app.ticker.remove(stopTicker1);
         app.ticker.remove(stopTicker2);
         app.ticker.remove(stopTicker3);
         app.ticker.remove(stopTicker4);
         app.ticker.remove(stopTicker5);
-        console.log(`final ticker:`)
-        console.log(app.ticker)
+
+        //check for winning lines
+        let rollPoints = RewardService.checkForWinningLines(rollField)
+        rewardService.addWalletFundsByPointsValue(rollPoints);
+        walletObject.text = `Balance: ${rewardService.returnWalletAmount()} Leva`
+        console.log(`points${rollPoints}`)
     }, spinTime + 1650);
     app.ticker.addOnce(rollReels)
 }
 
 function stopReels(){
-    console.log(app.ticker)
     slowedRollSpeed  = rollSpeed / 5
     stopReel(ticker1, 50, stopTicker1)
     stopReel(ticker2, 250, stopTicker2)
@@ -200,7 +249,6 @@ function correctPositionsTicker(delta, columnId){
             removeOldSpritesFromStage(columnId, false)
             //change variables
             isRolling = false;
-            console.log(`is Rolling: ${isRolling}`)
         }
     }
 }
