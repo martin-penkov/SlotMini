@@ -47,7 +47,7 @@ let rollField = [
     []
 ]
 
-
+let invisibleClickers = []
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container.
@@ -151,6 +151,28 @@ rollReels = function(delta) {
     rollSingleReel(2, 400, ticker3)
     rollSingleReel(3, 600, ticker4)
     rollSingleReel(4, 800, ticker5)
+
+    //add event listeners for stop when you press reel with mouse
+    //add sprites covering each reel so we can attach event listeners on them
+    
+    let stopFunctionReferences = [{mainTicker: ticker1, stopTicker: stopTicker1, delay: 50}
+        , {mainTicker: ticker2, stopTicker: stopTicker2, delay: 250}
+        , {mainTicker: ticker3, stopTicker: stopTicker3, delay: 450}
+        , {mainTicker: ticker4, stopTicker: stopTicker4, delay: 650}
+        , {mainTicker: ticker5, stopTicker: stopTicker5, delay: 850}]
+    invisibleClickers.push(getInvisibleSprite(10, 0, horizontalOffset, fullFieldHeight* 1.5));
+    invisibleClickers.push(getInvisibleSprite(horizontalOffset + 10, 0, horizontalOffset, fullFieldHeight* 1.5));
+    invisibleClickers.push(getInvisibleSprite(horizontalOffset * 2 + 10, 0, horizontalOffset, fullFieldHeight* 1.5));
+    invisibleClickers.push(getInvisibleSprite(horizontalOffset * 3 + 10, 0, horizontalOffset, fullFieldHeight* 1.5));
+    invisibleClickers.push(getInvisibleSprite(horizontalOffset * 4 + 10, 0, horizontalOffset, fullFieldHeight * 1.5));
+    for (let i = 0; i < 5; i++) {
+        slotFrame.addChild(invisibleClickers[i])
+    }
+    //atach event listeners
+    for (let i = 0; i < 5; i++) {
+        let reelFunctionReferences = stopFunctionReferences[i]
+        invisibleClickers[i].on('mousedown', function () {stopReel(reelFunctionReferences.mainTicker, reelFunctionReferences.delay, reelFunctionReferences.stopTicker)})
+    }
 }
 
 rollSingleReel = function(columnId, timeout, namedFunction){
@@ -197,7 +219,10 @@ function Roll(event){
         app.ticker.remove(stopTicker3);
         app.ticker.remove(stopTicker4);
         app.ticker.remove(stopTicker5);
-
+        //remove invisibleClickers
+        for (let i = 0; i < 5; i++) {   
+            slotFrame.removeChild(invisibleClickers[i]);  
+        }
         //check for winning lines
         let rollPoints = RewardService.checkForWinningLines(rollField)
         rewardService.addWalletFundsByPointsValue(rollPoints);
