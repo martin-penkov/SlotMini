@@ -5,13 +5,12 @@ let areNewSymbolsSpawned = false;
 let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
 let rollSpeed = 100;  //speed in ms
-let spinTime = 2000; // time is in ms
+let slowedRollSpeed  = rollSpeed / 5
+let spinTime = 3500; // time is in ms
 let correctedPositions = [false, false, false, false, false]
 
 //wallet
 let rewardService = new RewardService()
-
-
 
 let walletObject = new PIXI.Text(`Balance: ${rewardService.returnWalletAmount()} Leva`, defaultStyling());
 let betObject = new PIXI.Text(`Bet: ${rewardService.returnBetAmount()} Leva`, defaultStyling())
@@ -155,11 +154,11 @@ rollReels = function(delta) {
     //add event listeners for stop when you press reel with mouse
     //add sprites covering each reel so we can attach event listeners on them
     
-    let stopFunctionReferences = [{mainTicker: ticker1, stopTicker: stopTicker1, delay: 50}
-        , {mainTicker: ticker2, stopTicker: stopTicker2, delay: 250}
-        , {mainTicker: ticker3, stopTicker: stopTicker3, delay: 450}
-        , {mainTicker: ticker4, stopTicker: stopTicker4, delay: 650}
-        , {mainTicker: ticker5, stopTicker: stopTicker5, delay: 850}]
+    let stopFunctionReferences = [{mainTicker: ticker1, stopTicker: stopTicker1}
+        , {mainTicker: ticker2, stopTicker: stopTicker2}
+        , {mainTicker: ticker3, stopTicker: stopTicker3}
+        , {mainTicker: ticker4, stopTicker: stopTicker4}
+        , {mainTicker: ticker5, stopTicker: stopTicker5}]
     invisibleClickers.push(getInvisibleSprite(10, 0, horizontalOffset, fullFieldHeight* 1.5));
     invisibleClickers.push(getInvisibleSprite(horizontalOffset + 10, 0, horizontalOffset, fullFieldHeight* 1.5));
     invisibleClickers.push(getInvisibleSprite(horizontalOffset * 2 + 10, 0, horizontalOffset, fullFieldHeight* 1.5));
@@ -171,7 +170,7 @@ rollReels = function(delta) {
     //atach event listeners
     for (let i = 0; i < 5; i++) {
         let reelFunctionReferences = stopFunctionReferences[i]
-        invisibleClickers[i].on('mousedown', function () {stopReel(reelFunctionReferences.mainTicker, reelFunctionReferences.delay, reelFunctionReferences.stopTicker)})
+        invisibleClickers[i].on('mousedown', function () {stopReel(reelFunctionReferences.mainTicker, 0, reelFunctionReferences.stopTicker)})
     }
 }
 
@@ -233,7 +232,6 @@ function Roll(event){
 }
 
 function stopReels(){
-    slowedRollSpeed  = rollSpeed / 5
     stopReel(ticker1, 50, stopTicker1)
     stopReel(ticker2, 250, stopTicker2)
     stopReel(ticker3, 450, stopTicker3)
