@@ -1,3 +1,17 @@
+//spin reel ticker named functions
+let ticker1 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 0)}
+let ticker2 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 1)}
+let ticker3 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 2)}
+let ticker4 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 3)}
+let ticker5 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 4)}
+
+//stop reel ticker named functions
+let stopTicker1 = function(delta) {RollFunctions.correctPositionsTicker(delta, 0)}
+let stopTicker2 = function(delta) {RollFunctions.correctPositionsTicker(delta, 1)}
+let stopTicker3 = function(delta) {RollFunctions.correctPositionsTicker(delta, 2)}
+let stopTicker4 = function(delta) {RollFunctions.correctPositionsTicker(delta, 3)}
+let stopTicker5 = function(delta) {RollFunctions.correctPositionsTicker(delta, 4)}
+
 class RollFunctions {
     static Roll(event){
         correctedPositions = [false, false, false, false, false]
@@ -53,12 +67,14 @@ class RollFunctions {
             this.removeWonNotification(noBalanceNotif)
         }
     }
+    
 
     static removeWonNotification(notificationSprite){
         setTimeout(() => {
             app.stage.removeChild(notificationSprite);
         }, 5000);
     }
+
 
     static tickerGeneralFunc(delta, columnId) {
         rollField[columnId].forEach(spriteReference => {

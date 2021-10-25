@@ -14,18 +14,8 @@ let rewardService = new RewardService()
 let walletObject = new PIXI.Text(`Balance: ${rewardService.returnWalletAmount()} BGN`, defaultStyling());
 
 
-
-//ticker named functions
-let ticker1 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 0)}
-let ticker2 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 1)}
-let ticker3 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 2)}
-let ticker4 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 3)}
-let ticker5 = function(delta) {RollFunctions.tickerGeneralFunc(delta, 4)}
-
-
 //field data x- y-axis
 //2d array containing the field with the data to identify each symbol
-
 let verticalOffset = fullFieldHeight / 3 + 50;
 let horizontalOffset = fullFieldWidth / 5;
 let field = [
@@ -108,7 +98,7 @@ function setup(loader) {
     RollFunctions.addRandomFieldSymbols(slotFrame)
 }
 
-
+//roll ticker which is going to run after button press
 rollReels = function(delta) {
     //generater new random field sprites
     RollFunctions.initialAddRandomFieldSymbolsDuringRoll()
@@ -143,19 +133,10 @@ rollReels = function(delta) {
     }
 }
 
+
+//reel spin function which gets called in the main spin function for each column of the field
 rollSingleReel = function(columnId, timeout, namedFunction){
     setTimeout(() => {
         app.ticker.add(namedFunction)
     }, timeout);
 }
-
-
-
-
-
-//stop ticker named functions
-let stopTicker1 = function(delta) {RollFunctions.correctPositionsTicker(delta, 0)}
-let stopTicker2 = function(delta) {RollFunctions.correctPositionsTicker(delta, 1)}
-let stopTicker3 = function(delta) {RollFunctions.correctPositionsTicker(delta, 2)}
-let stopTicker4 = function(delta) {RollFunctions.correctPositionsTicker(delta, 3)}
-let stopTicker5 = function(delta) {RollFunctions.correctPositionsTicker(delta, 4)}
