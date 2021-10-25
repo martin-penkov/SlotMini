@@ -5,7 +5,9 @@ class RewardService {
     }
 
     addWalletFundsByPointsValue(points){
-        this.wallet += this.betAmount * points
+        let amountWon = this.betAmount * points;
+        this.wallet += amountWon;
+        return amountWon;
     }
 
     returnWalletAmount(){
@@ -17,7 +19,7 @@ class RewardService {
     }
 
     lowerBet(){
-        if(this.betAmount <= 10){}
+        if(this.betAmount <= 0){}
         else {
             this.betAmount -= 10
         }
@@ -28,7 +30,14 @@ class RewardService {
     }
 
     removeBetAmountAfterSpin(){
-        this.wallet -= this.betAmount
+        //return false if there is not enough balance to spin
+        if(this.returnBetAmount() > this.returnWalletAmount()){
+            return false
+        }
+        else{
+            this.wallet -= this.betAmount
+            return true;
+        }
     }
 
     static checkForWinningLines(field){

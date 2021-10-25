@@ -1,42 +1,64 @@
 class RollFunctions {
     static Roll(event){
         correctedPositions = [false, false, false, false, false]
-        rewardService.removeBetAmountAfterSpin();
-        walletObject.text = `Balance: ${rewardService.returnWalletAmount()} BGN`
-        //change button to unavailable texture and remove temporarily the onclick event
-        let buttonSprite = event.currentTarget
-        buttonSprite.off('mousedown')
-        buttonSprite.texture = sceneService.getButtons().buttonActive;
-        isRolling = true;
-        console.log(`is Rolling: ${isRolling}`)
-        setTimeout(() => {
-            this.stopReels()
-        }, spinTime);
-    
-        //set timeout also for when the spin is going to be done and you can spin again
-        //then remove the removeTickers from the stage
-        //add 1650 to the because that is the sum of the delays between first and last reel when they start and when they finish
-        setTimeout(() => {
-            buttonSprite.texture = sceneService.getButtons().buttonNormal;
-            buttonSprite.on('mousedown', function (event) { RollFunctions.Roll(event) })
-            app.ticker.remove(stopTicker1);
-            app.ticker.remove(stopTicker2);
-            app.ticker.remove(stopTicker3);
-            app.ticker.remove(stopTicker4);
-            app.ticker.remove(stopTicker5);
-            //remove invisibleClickers
-            for (let i = 0; i < 5; i++) {   
-                slotFrame.removeChild(invisibleClickers[i]);  
-            }
-            //check for winning lines
-            let rollPoints = RewardService.checkForWinningLines(rollField)
-            rewardService.addWalletFundsByPointsValue(rollPoints);
+        let isEnoughWalletAmount = rewardService.removeBetAmountAfterSpin();
+        if(isEnoughWalletAmount){
             walletObject.text = `Balance: ${rewardService.returnWalletAmount()} BGN`
-            console.log(`points${rollPoints}`)
-        }, spinTime + 1650);
-        app.ticker.addOnce(rollReels)
+            //change button to unavailable texture and remove temporarily the onclick event
+            let buttonSprite = event.currentTarget
+            buttonSprite.off('mousedown')
+            buttonSprite.texture = sceneService.getButtons().buttonActive;
+            isRolling = true;
+            console.log(`is Rolling: ${isRolling}`)
+            setTimeout(() => {
+                this.stopReels()
+            }, spinTime);
+        
+            //set timeout also for when the spin is going to be done and you can spin again
+            //then remove the removeTickers from the stage
+            //add 1650 to the because that is the sum of the delays between first and last reel when they start and when they finish
+            setTimeout(() => {
+                buttonSprite.texture = sceneService.getButtons().buttonNormal;
+                buttonSprite.on('mousedown', function (event) { RollFunctions.Roll(event) })
+                app.ticker.remove(stopTicker1);
+                app.ticker.remove(stopTicker2);
+                app.ticker.remove(stopTicker3);
+                app.ticker.remove(stopTicker4);
+                app.ticker.remove(stopTicker5);
+                //remove invisibleClickers
+                for (let i = 0; i < 5; i++) {   
+                    slotFrame.removeChild(invisibleClickers[i]);  
+                }
+                //check for winning lines
+                let rollPoints = RewardService.checkForWinningLines(rollField)
+                let amountWon = rewardService.addWalletFundsByPointsValue(rollPoints);
+                walletObject.text = `Balance: ${rewardService.returnWalletAmount()} BGN`
+                let afterRollText;
+                if(amountWon === 0){
+                    afterRollText = SceneService.getLoseNotification();
+                }
+                else{
+                    afterRollText = SceneService.getWinNotification(amountWon)
+                }
+                app.stage.addChild(afterRollText);
+                //set timeout for win text to disappear
+                this.removeWonNotification(afterRollText);
+                console.log(`points${rollPoints}`)
+            }, spinTime + 1650);
+            app.ticker.addOnce(rollReels)
+        }
+        else{
+            let noBalanceNotif = SceneService.getNoBalanceNotification()
+            app.stage.addChild(noBalanceNotif)
+            this.removeWonNotification(noBalanceNotif)
+        }
     }
 
+    static removeWonNotification(notificationSprite){
+        setTimeout(() => {
+            app.stage.removeChild(notificationSprite);
+        }, 5000);
+    }
 
     static tickerGeneralFunc(delta, columnId) {
         rollField[columnId].forEach(spriteReference => {

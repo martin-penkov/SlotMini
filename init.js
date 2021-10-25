@@ -6,12 +6,11 @@ let newSymbolsSpawnedCount = 0;
 let isNewFieldGenerated = false;
 let rollSpeed = 100;  //speed in ms
 let slowedRollSpeed  = rollSpeed / 5
-let spinTime = 3500; // time is in ms
+let spinTime = 3000; // time is in ms
 let correctedPositions = [false, false, false, false, false]
 
 //wallet
 let rewardService = new RewardService()
-
 let walletObject = new PIXI.Text(`Balance: ${rewardService.returnWalletAmount()} BGN`, defaultStyling());
 
 

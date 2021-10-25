@@ -79,6 +79,30 @@ class SceneService {
         return {help1: helpText1, help2: helpText2}
     }
 
+    static getWinNotification(amountWon){
+        let textString = `Won ${amountWon} BGN!`
+        let winText = new PIXI.Text(textString, winStyling())
+        let textMetrics = PIXI.TextMetrics.measureText(textString, winStyling())
+        winText.x = window.innerWidth - textMetrics.width;
+        return winText;
+    }
+
+    static getLoseNotification(){
+        let textString = `You Lost!`
+        let winText = new PIXI.Text(textString, winStyling())
+        let textMetrics = PIXI.TextMetrics.measureText(textString, winStyling())
+        winText.x = window.innerWidth - textMetrics.width;
+        return winText;
+    }
+
+    static getNoBalanceNotification(){
+        let textString = `Not enough balance! Lower bet!`
+        let winText = new PIXI.Text(textString, winStyling())
+        let textMetrics = PIXI.TextMetrics.measureText(textString, winStyling())
+        winText.x = window.innerWidth - textMetrics.width;
+        return winText;
+    }
+
     static createSprite(texture, x, y, width, height){
         let sprite = new PIXI.Sprite(texture)
         sprite.width = width;
