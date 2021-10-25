@@ -48,11 +48,16 @@ class RollFunctions {
                 let amountWon = rewardService.addWalletFundsByPointsValue(rollPoints);
                 walletObject.text = `Balance: ${rewardService.returnWalletAmount()} BGN`
                 let afterRollText;
-                if(amountWon === 0){
-                    afterRollText = SceneService.getLoseNotification();
+                if(amountWon.won === 0){
+                    if(amountWon.bet === 0){
+                        afterRollText = SceneService.get0BetNotification(amountWon.points)
+                    }
+                    else{
+                        afterRollText = SceneService.getLoseNotification();
+                    }
                 }
                 else{
-                    afterRollText = SceneService.getWinNotification(amountWon)
+                    afterRollText = SceneService.getWinNotification(amountWon.won)
                 }
                 app.stage.addChild(afterRollText);
                 //set timeout for win text to disappear

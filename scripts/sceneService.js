@@ -103,6 +103,14 @@ class SceneService {
         return winText;
     }
 
+    static get0BetNotification(points){
+        let textString = `You could have won x${points} times your bet!`
+        let winText = new PIXI.Text(textString, winStyling())
+        let textMetrics = PIXI.TextMetrics.measureText(textString, winStyling())
+        winText.x = window.innerWidth - textMetrics.width;
+        return winText;
+    }
+
     static createSprite(texture, x, y, width, height){
         let sprite = new PIXI.Sprite(texture)
         sprite.width = width;

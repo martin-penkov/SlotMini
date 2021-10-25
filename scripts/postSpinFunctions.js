@@ -7,7 +7,9 @@ class RewardService {
     addWalletFundsByPointsValue(points){
         let amountWon = this.betAmount * points;
         this.wallet += amountWon;
-        return amountWon;
+        //return also the bet amount so it does not show you lost when you play without bet
+        //return points so we can tell the user how many he could have won if he did have bet  (this case is hit only when you play without bet)
+        return {won: amountWon, bet: this.betAmount, points: points};
     }
 
     returnWalletAmount(){
